@@ -1,4 +1,4 @@
-# PDX STR Similarity": 
+# PDX STR Similarity: 
 #### This site and tool are intended research purposes only
 
 # Site  
