@@ -98,7 +98,7 @@ For batch samples entered in the File Query tab, `PDX STR Similarity` will gener
 ---
 
 # License 
-STR Similarity is provided under the MIT license. Source code can be found at `INSERT_GIT_REPO_WHEN_AVAIL`
+STR Similarity is provided under the MIT license. Source code can be found at <a href="https://github.com/MikeWLloyd/strprofiler_shiny/" target="_blank">MikeWLloyd/strprofiler_shiny</a>
 
 ---
 
