@@ -7,8 +7,18 @@ from collections import OrderedDict
 import time
 
 
-def single_query(query, str_database, use_amel, three_allele_threshold):
+def single_query(query, str_database, use_amel, three_allele_threshold, query_filter, query_filter_threshold):
  
+    if query_filter == 'Tanabe':
+        query_filter_name = 'tanabe_score'
+        drop_cols = ['masters_query_score', 'masters_ref_score', 'query_sample', 'n_query_alleles', 'n_reference_alleles']
+    elif query_filter == 'Masters Query':
+        query_filter_name = 'masters_query_score'
+        drop_cols = ['tanabe_score', 'masters_ref_score', 'query_sample', 'n_query_alleles', 'n_reference_alleles']
+    elif query_filter == 'Masters Reference':
+        query_filter_name = 'masters_ref_score'
+        drop_cols = ['tanabe_score', 'masters_query_score', 'query_sample', 'n_query_alleles', 'n_reference_alleles']
+    
     current_time = time.strftime("%H:%M", time.localtime())
 
     mixed = sp.mixing_check(alleles=query, three_allele_threshold=three_allele_threshold)
@@ -44,14 +54,19 @@ def single_query(query, str_database, use_amel, three_allele_threshold):
     # Create DataFrame of scores for each sample comparison.
     full_samp_out = pd.DataFrame(samp_comps)
     full_samp_out.sort_values(
-        by="tanabe_score", ascending=False, inplace=True, na_position="first"
+        by=query_filter_name, ascending=False, inplace=True, na_position="first"
     )
 
     full_samp_out = full_samp_out.round({'tanabe_score': 2, 'masters_query_score': 2, 'masters_ref_score': 2})
 
-    full_samp_out.rename(columns={"mixed": "Mixed Sample", "n_shared_markers": "Shared Markers", "n_shared_alleles": "Shared Alleles", "tanabe_score": "Tanabe Score", "masters_query_score": "Master Query Score", "masters_ref_score": "Master Ref Score"}, inplace = True)
+     
 
-    full_samp_out.drop(columns=['query_sample', 'n_query_alleles', 'n_reference_alleles'], inplace = True)
+
+    full_samp_out = (full_samp_out[(full_samp_out[query_filter_name] >= query_filter_threshold) | (full_samp_out.index == 0)])
+
+    full_samp_out.drop(columns=drop_cols, inplace = True)
+
+    full_samp_out.rename(columns={"mixed": "Mixed Sample", "n_shared_markers": "Shared Markers", "n_shared_alleles": "Shared Alleles", "tanabe_score": "Tanabe Score", "masters_query_score": "Master Query Score", "masters_ref_score": "Master Ref Score"}, inplace = True)
 
     return full_samp_out
 

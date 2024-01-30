@@ -13,6 +13,8 @@ from calc_functions import single_query, batch_query, file_query
 from datetime import date
 import time
 
+from shiny_tables import enhanced_from_dataframe
+
 www_dir = Path(__file__).parent / "www"
 
 reset_count = 0
@@ -30,28 +32,201 @@ str_database = sp.str_ingress(
 
 html_path = str(Path(__file__).parent / "help.html")
 
+
+def Amelogenin(val):
+    if val != output_df['Amelogenin'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+    
+def CSF1PO(val):
+    if val != output_df['CSF1PO'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+    
+def D2S1338(val):
+    if val != output_df['D2S1338'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D3S1358(val):
+    if val != output_df['D3S1358'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D5S818(val):
+    if val != output_df['D5S818'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D7S820(val):
+    if val != output_df['D7S820'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D8S1179(val):
+    if val != output_df['D8S1179'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D13S317(val):
+    if val != output_df['D13S317'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D16S539(val):
+    if val != output_df['D16S539'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D18S51(val):
+    if val != output_df['D18S51'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D19S433(val):
+    if val != output_df['D19S433'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def D21S11(val):
+    if val != output_df['D21S11'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def FGA(val):
+    if val != output_df['FGA'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def PentaD(val):
+    if val != output_df['PentaD'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def PentaE(val):
+    if val != output_df['PentaE'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def TH01(val):
+    if val != output_df['TH01'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def TPOX(val):
+    if val != output_df['TPOX'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+def vWA(val):
+    if val != output_df['vWA'][0]:
+        return {"style": 'text-align:center;background-color:#ec7a80'}
+    else:
+        return {"style": 'text-align:center'}
+
+
+
+cell_style_dict = {
+    'Amelogenin': Amelogenin,
+    "CSF1PO": CSF1PO, 
+    "D2S1338": D2S1338, 
+    "D3S1358": D3S1358, 
+    "D5S818": D5S818, 
+    "D7S820": D7S820, 
+    "D8S1179": D8S1179, 
+    "D13S317": D13S317, 
+    "D16S539": D16S539, 
+    "D18S51": D18S51, 
+    "D19S433": D19S433, 
+    "D21S11": D21S11, 
+    "FGA": FGA, 
+    "PentaD": PentaD, 
+    "PentaE": PentaE, 
+    "TH01": TH01, 
+    "TPOX": TPOX, 
+    "vWA": vWA,
+    'Mixed Sample': lambda x: {
+        "style": 'text-align:center'
+    },
+    'Shared Markers': lambda x: {
+        "style": 'text-align:center'
+    },
+    'Shared Alleles': lambda x: {
+        "style": 'text-align:center'
+    },
+    'Tanabe Score': lambda x: {
+        "style": 'text-align:center'
+    },
+    'Master Query Score': lambda x: {
+        "style": 'text-align:center'
+    },
+    'Master Ref Score': lambda x: {
+        "style": 'text-align:center'
+    }
+}
+
+header_style_dict = {
+    'Shared Markers': {'style': 'text-align:center'},
+    'Shared Alleles': {'style': 'text-align:center'},
+    'Tanabe Score': {'style': 'text-align:center'},
+    'Master Query Score': {'style': 'text-align:center'},
+    'Master Ref Score': {'style': 'text-align:center'}
+    
+}
+
+ui.tags.style(
+".table {-webkit-border-radius: 20px; -moz-border-radius: 20px; border-radius: 20px;}"
+)
+
 #########
 app_ui = ui.page_navbar(
     shinyswatch.theme.superhero(),
     ui.nav_panel(
         "Database Query",
-        ui.layout_sidebar(
-            ui.panel_sidebar(
-                {"id": "sidebar"},
-                ui.tags.h3("Search"),
-                ui.input_action_button("search", "Search", class_="btn-success"),
-                ui.tags.hr(),
-                ui.tags.h3("Options"),
-                ui.input_checkbox("score_amel_query", "Score Amelogenin", value = True),
-                ui.input_numeric("mix_threshold_query", "'Mixed' Sample Threshold", value=3, width = '52%'),
-                ui.tags.hr(),
-                ui.tags.h3("Example"),
-                ui.input_action_button("demo_data", "Load Example Data", class_="btn-primary"),
-                ui.tags.hr(),
-            position="right"),
-            ui.panel_main(
-                ui.card(
-                    ui.tags.h3("Sample Input"),
+        ui.card(
+            ui.layout_sidebar(
+                ui.panel_sidebar(
+                    {"id": "sidebar"},
+                    ui.tags.h3("Search"),
+                    ui.input_action_button("search", "Search", class_="btn-success"),
+                    ui.tags.h3("Options"),
+                    ui.card(
+                        ui.input_switch("score_amel_query", "Score Amelogenin", value = True),
+                        ui.input_numeric("mix_threshold_query", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                        ui.input_selectize(
+                            "query_filter", "Similarity Score Filter",
+                            choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
+                        ),
+                        ui.input_numeric("query_filter_threshold", "Score Threshold", value=80, width = '100%'),
+                    ),
+                    ui.tags.hr(),
+                    ui.input_action_button("reset", "Reset Inputs / Results", class_="btn-danger"),
+                position="right"),
+                ui.panel_main(
+                    ui.column(12,
+                        ui.row(
+                            ui.column(4, ui.tags.h3("Sample Input")),
+                            ui.column(4,ui.output_ui("demo_text")),
+                            ui.column(4, ui.input_action_button("demo_data", "Load Example Data", class_="btn-primary"))
+                        ),
+                    ),
                     ui.card(
                         ui.column(12,
                             ui.row(
@@ -85,47 +260,48 @@ app_ui = ui.page_navbar(
                                 # ui.column(3, ui.input_text("marker_20", "Mark", placeholder="")),
                             ),
                         ),
-                        ui.output_ui("demo_text", class_="blockquote"),
                         full_screen = False, fill = False
                     ),
-                ),
 
+                ),
             ),
-        ),
+            ),
+        ui.tags.hr(),
         ui.card(
             ui.row(
                 ui.column(3, ui.tags.h3("Results")),
-                ui.column(6, ui.p('')),
-                ui.column(3, ui.input_action_button("reset", "Reset Inputs / Results", class_="btn-danger")),
+                ui.column(1, ui.p('')),
             ),
             ui.column(12,
                 {"id": "res_card"},
-                ui.output_data_frame("out_result"),
+                # ui.output_data_frame("out_result"),
+                ui.output_ui("out_result"),
             ),
             full_screen = False, fill = False
         ),
     ),
     ui.nav_panel("Batch Database Query",
-        ui.layout_sidebar(
-            ui.panel_sidebar(
-                {"id": "batch_sidebar"},
-                ui.tags.h3("Inputs"),
-                ui.tags.hr(),
-                ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
-                ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
-                ui.tags.hr(),
-                ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
-                ui.tags.hr(),
-                ui.tags.h5("Options"),
-                ui.input_checkbox("score_amel_batch", "Score Amelogenin", value = True),
-                ui.input_numeric("mix_threshold_batch", "'Mixed' Sample Threshold", value=3, width = '75%'),
-                ui.input_numeric("tan_threshold_batch", "Tanabe Filter Threshold", value=80, width = '75%'),
-                ui.input_numeric("mas_q_threshold_batch", "Masters (vs. query) Filter Threshold", value=80, width = '75%'),
-                ui.input_numeric("mas_r_threshold_batch", "Masters (vs. reference) Filter Threshold", value=80, width = '75%'),
-                position = "left"
-            ),
-            ui.panel_main(
-                ui.card(
+        ui.card(
+            ui.layout_sidebar(
+                ui.panel_sidebar(
+                    {"id": "batch_sidebar"},
+                    ui.tags.h3("Inputs"),
+                    ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
+                    ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
+                    ui.tags.hr(),
+                    ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
+                    ui.tags.hr(),
+                    ui.tags.h5("Options"),
+                    ui.card(
+                        ui.input_checkbox("score_amel_batch", "Score Amelogenin", value = True),
+                        ui.input_numeric("mix_threshold_batch", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                        ui.input_numeric("tan_threshold_batch", "Tanabe Filter Threshold", value=80, width = '100%'),
+                        ui.input_numeric("mas_q_threshold_batch", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
+                        ui.input_numeric("mas_r_threshold_batch", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
+                    ),
+                    position = "left"
+                ),
+                ui.panel_main(
                     ui.row(
                         ui.column(3, ui.tags.h3("Results")),
                         ui.column(6, ui.p('')),
@@ -135,42 +311,43 @@ app_ui = ui.page_navbar(
                         ui.output_data_frame("out_batch_df"),
                         ui.p('')
                     ),
-                )
-            ) 
+                ),
+            ),
         ),
     ),
     ui.nav_panel("File Query",
-        ui.layout_sidebar(
+        ui.card(
+            ui.layout_sidebar(
             ui.panel_sidebar(
                 {"id": "novel_query_sidebar"},
                 ui.tags.h3("Inputs"),
-                ui.tags.hr(),
                 ui.input_file("file2", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
                 ui.input_action_button("csv_query2", "CSV Query", class_="btn-primary", width = '100%'),
                 ui.tags.hr(),
                 ui.download_button("example_file2", "Download Example Batch File", class_="btn-secondary", width = '100%'),
                 ui.tags.hr(),
                 ui.tags.h5("Options"),
-                ui.input_checkbox("score_amel_file", "Score Amelogenin", value = True),
-                ui.input_numeric("mix_threshold_file", "'Mixed' Sample Threshold", value=3, width = '75%'),
-                ui.input_numeric("tan_threshold_file", "Tanabe Filter Threshold", value=80, width = '75%'),
-                ui.input_numeric("mas_q_threshold_file", "Masters (vs. query) Filter Threshold", value=80, width = '75%'),
-                ui.input_numeric("mas_r_threshold_file", "Masters (vs. reference) Filter Threshold", value=80, width = '75%'),
+                ui.card(
+                    ui.input_checkbox("score_amel_file", "Score Amelogenin", value = True),
+                    ui.input_numeric("mix_threshold_file", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                    ui.input_numeric("tan_threshold_file", "Tanabe Filter Threshold", value=80, width = '100%'),
+                    ui.input_numeric("mas_q_threshold_file", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
+                    ui.input_numeric("mas_r_threshold_file", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
+                ),
                 position = "left"
             ),
             ui.panel_main(
-                ui.card(
-                    ui.row(
-                        ui.column(3, ui.tags.h3("Results")),
-                        ui.column(6, ui.p('')),
-                    ),
-                    ui.column(12,
-                        {"id": "res_card_file"},
-                        ui.output_data_frame("out_file_df"),
-                        ui.p('')
-                    ),
-                )
-            ) 
+                ui.row(
+                    ui.column(3, ui.tags.h3("Results")),
+                    ui.column(6, ui.p('')),
+                ),
+                ui.column(12,
+                    {"id": "res_card_file"},
+                    ui.output_data_frame("out_file_df"),
+                    ui.p('')
+                ),
+            ),
+        ),
         ),
     ),
     ui.nav_panel("About",
@@ -190,7 +367,7 @@ def server(input, output, session):
 
 ################
 # Single sample query section
-    
+
     ## Dealing with demo data load
     ### Add some demo genotype information to the fields
     @reactive.Effect
@@ -217,7 +394,7 @@ def server(input, output, session):
         @output
         @render.text
         def demo_text():
-            x = ui.strong('Demo Data from sample: J000077608F001_P0')
+            x = ui.strong('Example: J000077608_P0')
             return x
     
 
@@ -327,26 +504,33 @@ def server(input, output, session):
                 selector="#res_card",
                 where="afterEnd",
             )
-            ui.insert_ui(
-                ui.div({"id": "inserted-switch"}, ui.input_switch("filters", "Data Filters", False)),
-                selector="#res_card",
-                where="beforeBegin",
-            )           
+            # ui.insert_ui(
+            #     ui.div({"id": "inserted-switch"}, ui.input_switch("filters", "Data Filters", False)),
+            #     selector="#res_card",
+            #     where="beforeBegin",
+            # )           
             res_click = 1
 
-        return single_query(query, str_database, input.score_amel_query(), input.mix_threshold_query())
+        return single_query(query, str_database, input.score_amel_query(), input.mix_threshold_query(), input.query_filter(), input.query_filter_threshold())
 
-    ## Dealing with making a dataframe for display
     @output
-    @render.data_frame
+    @render.ui
     def out_result():
+        global output_df
         output_df = output_results()
         if output_df is not None:
-            return render.DataGrid(output_df, filters=input.filters(), height = 350)
+            output_df.fillna('', inplace=True)
+            return enhanced_from_dataframe(
+                output_df,
+                cell_style_dict=cell_style_dict,
+                header_style_dict=header_style_dict,
+                process_header_styles=True
+                )
+
 
     ## Dealing with dowloading results, when requested. 
     ## Note that output_results() is a reactive Calc result. 
-    @session.download(filename='PDX_STR_Query_Results_'+date.today().isoformat()+'-'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
+    @render.download(filename='PDX_STR_Query_Results_'+date.today().isoformat()+'-'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download():
         if output_results() is not None:
             yield output_results().to_csv()
@@ -395,13 +579,13 @@ def server(input, output, session):
 
     ## Dealing with dowloading results, when requested. 
     ## Note that output_results() is a reactive Calc result. 
-    @session.download(filename='PDX_STR_Batch_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
+    @render.download(filename='PDX_STR_Batch_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download2():
         if batch_query_results() is not None:
             yield batch_query_results().to_csv()
 
     ## Dealing with passing example file to user. 
-    @session.download()
+    @render.download()
     def example_file1():
         path = "www/Example_Batch_File.csv"
         return str(path)
@@ -448,13 +632,13 @@ def server(input, output, session):
 
     ## Dealing with dowloading results, when requested. 
     ## Note that output_results() is a reactive Calc result. 
-    @session.download(filename='PDX_STR_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
+    @render.download(filename='PDX_STR_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download3():
         if file_query_results() is not None:
             yield file_query_results().to_csv()
 
     ## Dealing with passing example file to user. 
-    @session.download()
+    @render.download()
     def example_file2():
         path = "www/Example_Batch_File.csv"
         return str(path)
@@ -485,3 +669,4 @@ def server(input, output, session):
 
 
 app = App(app_ui, server, static_assets = www_dir)
+
