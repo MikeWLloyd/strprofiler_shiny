@@ -204,8 +204,6 @@ app_ui = ui.page_navbar(
             ui.layout_sidebar(
                 ui.panel_sidebar(
                     {"id": "sidebar"},
-                    ui.tags.h3("Search"),
-                    ui.input_action_button("search", "Search", class_="btn-success"),
                     ui.tags.h3("Options"),
                     ui.card(
                         ui.input_switch("score_amel_query", "Score Amelogenin", value = True),
@@ -214,9 +212,10 @@ app_ui = ui.page_navbar(
                             "query_filter", "Similarity Score Filter",
                             choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
                         ),
-                        ui.input_numeric("query_filter_threshold", "Score Threshold", value=80, width = '100%'),
+                        ui.input_numeric("query_filter_threshold", "Similarity Score Filter Threshold", value=80, width = '100%'),
                     ),
                     ui.tags.hr(),
+                    ui.input_action_button("search", "Search", class_="btn-success"),
                     ui.input_action_button("reset", "Reset Inputs / Results", class_="btn-danger"),
                 position="right"),
                 ui.panel_main(
@@ -285,13 +284,7 @@ app_ui = ui.page_navbar(
             ui.layout_sidebar(
                 ui.panel_sidebar(
                     {"id": "batch_sidebar"},
-                    ui.tags.h3("Inputs"),
-                    ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
-                    ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
-                    ui.tags.hr(),
-                    ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
-                    ui.tags.hr(),
-                    ui.tags.h5("Options"),
+                    ui.tags.h3("Options"),
                     ui.card(
                         ui.input_checkbox("score_amel_batch", "Score Amelogenin", value = True),
                         ui.input_numeric("mix_threshold_batch", "'Mixed' Sample Threshold", value=3, width = '100%'),
@@ -299,6 +292,9 @@ app_ui = ui.page_navbar(
                         ui.input_numeric("mas_q_threshold_batch", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
                         ui.input_numeric("mas_r_threshold_batch", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
                     ),
+                    ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
+                    ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
+                    ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
                     position = "left"
                 ),
                 ui.panel_main(
@@ -320,13 +316,7 @@ app_ui = ui.page_navbar(
             ui.layout_sidebar(
             ui.panel_sidebar(
                 {"id": "novel_query_sidebar"},
-                ui.tags.h3("Inputs"),
-                ui.input_file("file2", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
-                ui.input_action_button("csv_query2", "CSV Query", class_="btn-primary", width = '100%'),
-                ui.tags.hr(),
-                ui.download_button("example_file2", "Download Example Batch File", class_="btn-secondary", width = '100%'),
-                ui.tags.hr(),
-                ui.tags.h5("Options"),
+                ui.tags.h3("Options"),
                 ui.card(
                     ui.input_checkbox("score_amel_file", "Score Amelogenin", value = True),
                     ui.input_numeric("mix_threshold_file", "'Mixed' Sample Threshold", value=3, width = '100%'),
@@ -334,6 +324,9 @@ app_ui = ui.page_navbar(
                     ui.input_numeric("mas_q_threshold_file", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
                     ui.input_numeric("mas_r_threshold_file", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
                 ),
+                ui.input_file("file2", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
+                ui.input_action_button("csv_query2", "CSV Query", class_="btn-primary", width = '100%'),
+                ui.download_button("example_file2", "Download Example Batch File", class_="btn-secondary", width = '100%'),
                 position = "left"
             ),
             ui.panel_main(
