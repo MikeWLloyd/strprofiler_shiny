@@ -12,12 +12,10 @@ def _clean_header_names(x):
 
 
 # def process_header_class(col_name, header_style_dict, active=False):
-#     print(col_name)
 #     if not active:
 #         return
 #     style = ""
 #     if cell_style_entry := header_style_dict.get(col_name):
-#         print(cell_style_entry)
 #         if callable(cell_style_entry):
 #             if theStyle := cell_style_entry(col_name):
 #                 assert isinstance(
@@ -29,13 +27,11 @@ def _clean_header_names(x):
 
 
 def process_header_style(col_name, header_style_dict, active=False):
-    print(col_name)
     if not active:
         return
     style = ""
     if cell_style_entry := header_style_dict.get(col_name):
         if theStyle := cell_style_entry['style']:
-            print(theStyle)
             return theStyle
     return None
 
@@ -152,13 +148,6 @@ def enhanced_from_dataframe(
             for x in data_dict
         ])
     ]
-
-    # print(ui.tags.table(table_header + table_body, {'class': className,'style': style}))
-
-    print(ui.tags.table(table_header + table_body, {
-        'class': className,
-        'style': style
-    }))
 
     return ui.tags.table(table_header + table_body, {
         'class': className,
