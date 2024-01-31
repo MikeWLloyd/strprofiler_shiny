@@ -1,6 +1,7 @@
 import shinyswatch
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
-from shiny.types import FileInfo
+from shiny.types import FileInfo, ImgData
+
 
 import pandas as pd
 from pathlib import Path
@@ -14,6 +15,8 @@ from datetime import date
 import time
 
 from shiny_tables import enhanced_from_dataframe
+
+from faicons import icon_svg
 
 www_dir = Path(__file__).parent / "www"
 
@@ -209,9 +212,10 @@ app_ui = ui.page_navbar(
                         ui.input_switch("score_amel_query", "Score Amelogenin", value = True),
                         ui.input_numeric("mix_threshold_query", "'Mixed' Sample Threshold", value=3, width = '100%'),
                         ui.input_selectize(
-                            "query_filter", "Similarity Score Filter",
-                            choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
+                        "query_filter", "Similarity Score Filter",
+                        choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
                         ),
+                        ui.output_image("image", height = '50px', fill=True,   inline=True),
                         ui.input_numeric("query_filter_threshold", "Similarity Score Filter Threshold", value=80, width = '100%'),
                     ),
                     ui.tags.hr(),
@@ -360,6 +364,21 @@ def server(input, output, session):
 
 ################
 # Single sample query section
+
+    @render.image
+    def image():
+        if input.query_filter() == 'Tanabe':
+            dir = Path(__file__).resolve().parent
+            img: ImgData = {"src": str("www/tanabe_inverted.png"), "width": "320px", "height": "45px"}
+            return img
+        elif input.query_filter() == 'Masters Query':
+            dir = Path(__file__).resolve().parent
+            img: ImgData = {"src": str("www/masters_query_inverted.png"), "width": "200px", "height": "45px"}
+            return img
+        elif input.query_filter() == 'Masters Reference':
+            dir = Path(__file__).resolve().parent
+            img: ImgData = {"src": str("www/masters_ref_inverted.png"), "width": "200px", "height": "45px"}
+            return img
 
     ## Dealing with demo data load
     ### Add some demo genotype information to the fields
