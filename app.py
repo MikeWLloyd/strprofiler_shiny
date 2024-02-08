@@ -16,8 +16,6 @@ import time
 
 from shiny_tables import enhanced_from_dataframe
 
-from faicons import icon_svg
-
 www_dir = Path(__file__).parent / "www"
 
 reset_count = 0
@@ -545,7 +543,7 @@ def server(input, output, session):
     @render.download(filename='PDX_STR_Query_Results_'+date.today().isoformat()+'-'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download():
         if output_results() is not None:
-            yield output_results().to_csv()
+            yield output_results().to_csv(index=False)
 
 ################
 
@@ -594,7 +592,7 @@ def server(input, output, session):
     @render.download(filename='PDX_STR_Batch_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download2():
         if batch_query_results() is not None:
-            yield batch_query_results().to_csv()
+            yield batch_query_results().to_csv(index=False)
 
     ## Dealing with passing example file to user. 
     @render.download()
@@ -647,7 +645,7 @@ def server(input, output, session):
     @render.download(filename='PDX_STR_Results_'+date.today().isoformat()+'_'+time.strftime("%Hh-%Mm", time.localtime())+'.csv')
     def download3():
         if file_query_results() is not None:
-            yield file_query_results().to_csv()
+            yield file_query_results().to_csv(index=False)
 
     ## Dealing with passing example file to user. 
     @render.download()
