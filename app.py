@@ -2,7 +2,6 @@ import shinyswatch
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 from shiny.types import FileInfo, ImgData
 
-
 import pandas as pd
 from pathlib import Path
 from math import nan
@@ -16,6 +15,15 @@ import time
 
 from shiny_tables import enhanced_from_dataframe
 
+# To add new markers, also change/add: 
+    # 1. add new in UI sectoin: `ui.column(3, ui.input_text("marker_20", "Mark", placeholder="")),`
+    # 1. add new in example section: `ui.update_text("marker_18", value="16,18")` added
+    # 2. add new in reset section: `ui.update_text("marker_20", value="")`
+    # 3. add new reset query line: `"vWA": ''`
+    # 4. add new query dict line: `"vWA": input.marker_18(),`
+    # 5. add new dict: `def Amelogenin(val):` added for custom color in table
+    # 6. add new dict reference in: `cell_style_dict`
+
 www_dir = Path(__file__).parent / "www"
 
 reset_count = 0
@@ -23,13 +31,35 @@ res_click = 0
 res_click_batch = 0
 res_click_file = 0
 
-str_database = sp.str_ingress(
-    [Path(__file__).parent / "www/jax_database.csv"],
-    sample_col="Sample",
-    marker_col="Marker",
-    sample_map=None,
-    penta_fix=True,
-).to_dict(orient="index")
+
+# Unhandled error: Index has duplicate keys: Index(['L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'], dtype='object', name='Sample')
+
+def database_load(file):
+    try:
+        str_database = sp.str_ingress(
+            file,
+            sample_col="Sample",
+            marker_col="Marker",
+            sample_map=None,
+            penta_fix=True,
+        ).to_dict(orient="index")
+    except ValueError as e:
+        m = ui.modal(
+            ui.HTML("The file failed to load.<br>Check if sample ID names are duplciated.<br><br>Reported error:<br>"),
+            ui.HTML(str(e)+"<br><br>"),
+            ui.div({"style": "font-size: 25px"},
+                ui.HTML("Reloading stock database"),
+            ),                    
+            title='File Load Error',
+            easy_close=True,
+            footer=None,
+        )
+        ui.modal_show(m)
+        str_database = database_load([Path(__file__).parent / "www/jax_database.csv"])
+        return str_database
+    return str_database
+
+str_database = database_load([Path(__file__).parent / "www/jax_database.csv"])
 
 html_path = str(Path(__file__).parent / "help.html")
 
@@ -142,8 +172,6 @@ def vWA(val):
     else:
         return {"style": 'text-align:center'}
 
-
-
 cell_style_dict = {
     'Amelogenin': Amelogenin,
     "CSF1PO": CSF1PO, 
@@ -192,111 +220,170 @@ header_style_dict = {
     
 }
 
-ui.tags.style(
-".table {-webkit-border-radius: 20px; -moz-border-radius: 20px; border-radius: 20px;}"
-)
+stack = ui.HTML(
+    '<svg xmlns="http://www.w3.org/2000/svg" height="100%" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16"> <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"/> <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z"/> </svg>')
 
 #########
-app_ui = ui.page_navbar(
-    shinyswatch.theme.superhero(),
-    ui.nav_panel(
-        "Database Query",
-        ui.card(
-            ui.layout_sidebar(
-                ui.panel_sidebar(
-                    {"id": "sidebar"},
-                    ui.tags.h3("Options"),
-                    ui.card(
-                        ui.input_switch("score_amel_query", "Score Amelogenin", value = True),
-                        ui.input_numeric("mix_threshold_query", "'Mixed' Sample Threshold", value=3, width = '100%'),
-                        ui.input_selectize(
-                        "query_filter", "Similarity Score Filter",
-                        choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
-                        ),
-                        ui.output_image("image", height = '50px', fill=True,   inline=True),
-                        ui.input_numeric("query_filter_threshold", "Similarity Score Filter Threshold", value=80, width = '100%'),
-                    ),
-                    ui.tags.hr(),
-                    ui.input_action_button("search", "Search", class_="btn-success"),
-                    ui.input_action_button("reset", "Reset Inputs / Results", class_="btn-danger"),
-                position="right"),
-                ui.panel_main(
-                    ui.column(12,
-                        ui.row(
-                            ui.column(4, ui.tags.h3("Sample Input")),
-                            ui.column(4,ui.output_ui("demo_text")),
-                            ui.column(4, ui.input_action_button("demo_data", "Load Example Data", class_="btn-primary"))
-                        ),
-                    ),
-                    ui.card(
-                        ui.column(12,
-                            ui.row(
-                                ui.column(3, ui.input_text("marker_1", "Amelogenin", placeholder="")),
-                                ui.column(3, ui.input_text("marker_2", "CSF1PO", placeholder="")),
-                                ui.column(3, ui.input_text("marker_3", "D2S1338", placeholder="")),
-                                ui.column(3, ui.input_text("marker_4", "D3S1358", placeholder="")),
-                            ),
-                            ui.row(
-                                ui.column(3, ui.input_text("marker_5", "D5S818", placeholder="")),
-                                ui.column(3, ui.input_text("marker_6", "D7S820", placeholder="")),
-                                ui.column(3, ui.input_text("marker_7", "D8S1179", placeholder="")),
-                                ui.column(3, ui.input_text("marker_8", "D13S317", placeholder="")),
-                            ),
-                            ui.row(
-                                ui.column(3, ui.input_text("marker_9", "D16S539", placeholder="")),
-                                ui.column(3, ui.input_text("marker_10", "D18S51", placeholder="")),
-                                ui.column(3, ui.input_text("marker_11", "D19S433", placeholder="")),
-                                ui.column(3, ui.input_text("marker_12", "D21S11", placeholder="")),
-                            ),
-                            ui.row(
-                                ui.column(3, ui.input_text("marker_13", "FGA", placeholder="")),
-                                ui.column(3, ui.input_text("marker_14", "Penta D", placeholder="")),
-                                ui.column(3, ui.input_text("marker_15", "Penta E", placeholder="")),
-                                ui.column(3, ui.input_text("marker_16", "TH01", placeholder="")),
-                            ),
-                            ui.row(
-                                ui.column(3, ui.input_text("marker_17", "TPOX", placeholder="")),
-                                ui.column(3, ui.input_text("marker_18", "vWA", placeholder="")),
-                                # ui.column(3, ui.input_text("marker_19", "Mark", placeholder="")),
-                                # ui.column(3, ui.input_text("marker_20", "Mark", placeholder="")),
-                            ),
-                        ),
-                        full_screen = False, fill = False
-                    ),
+app_ui = ui.page_fluid(
+    ui.page_navbar(
+        shinyswatch.theme.superhero(),
+        ui.nav_menu(
+            "Database Single/Batch Query",
+            ui.nav_panel(
+                "Database Single Query",
+                ui.card(
+                    ui.layout_sidebar(
+                        ui.panel_sidebar(
+                            {"id": "sidebar"},
+                            ui.tags.h3("Options"),
 
+                            ui.tags.hr(),
+                            ui.card(
+                                ui.input_switch("score_amel_query", "Score Amelogenin", value = True),
+                                ui.input_numeric("mix_threshold_query", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                                ui.input_selectize(
+                                "query_filter", "Similarity Score Filter",
+                                choices=["Tanabe", "Masters Query", "Masters Reference"],  width = '100%'
+                                ),
+                                ui.output_image("image", height = '50px', fill=True,   inline=True),
+                                ui.input_numeric("query_filter_threshold", "Similarity Score Filter Threshold", value=80, width = '100%'),
+                            ),
+                        position="right"),
+                        ui.panel_main(
+                            ui.column(12,
+                                ui.row(
+                                    ui.column(4, ui.tags.h3("Sample Input")),
+                                ),
+                            ),
+                            ui.card(
+                                ui.column(12,
+                                    ui.row(
+                                        ui.column(3, ui.input_text("marker_1", "Amelogenin", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_2", "CSF1PO", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_3", "D2S1338", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_4", "D3S1358", placeholder="")),
+                                    ),
+                                    ui.row(
+                                        ui.column(3, ui.input_text("marker_5", "D5S818", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_6", "D7S820", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_7", "D8S1179", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_8", "D13S317", placeholder="")),
+                                    ),
+                                    ui.row(
+                                        ui.column(3, ui.input_text("marker_9", "D16S539", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_10", "D18S51", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_11", "D19S433", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_12", "D21S11", placeholder="")),
+                                    ),
+                                    ui.row(
+                                        ui.column(3, ui.input_text("marker_13", "FGA", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_14", "Penta D", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_15", "Penta E", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_16", "TH01", placeholder="")),
+                                    ),
+                                    ui.row(
+                                        ui.column(3, ui.input_text("marker_17", "TPOX", placeholder="")),
+                                        ui.column(3, ui.input_text("marker_18", "vWA", placeholder="")),
+                                        # ui.column(3, ui.input_text("marker_19", "Mark", placeholder="")),
+                                        # ui.column(3, ui.input_text("marker_20", "Mark", placeholder="")),
+                                    ),
+                                ),
+                                full_screen = False, fill = False
+                            ),
+                            ui.row(
+                                ui.column(4, ui.input_action_button("demo_data", "Load Example Data", class_="btn-primary")),
+                                ui.column(4,ui.output_ui("loaded_example_text")),
+                            ),
+                            ui.tags.hr(),
+                            ui.input_action_button("search", "Search", class_="btn-success"),
+                            ui.input_action_button("reset", "Reset Inputs / Results", class_="btn-danger"),
+                        ),
+                    ),
+                ),
+                ui.tags.hr(),
+                ui.card(
+                    ui.row(
+                        ui.column(3, ui.tags.h3("Results")),
+                        ui.column(1, ui.p('')),
+                    ),
+                    ui.column(12,
+                        {"id": "res_card"},
+                        ui.output_ui("out_result"),
+                    ),
+                    full_screen = False, fill = False
                 ),
             ),
+            ui.nav_panel("Database Batch Query",
+                ui.card(
+                    ui.layout_sidebar(
+                        ui.panel_sidebar(
+                            {"id": "batch_sidebar"},
+                            ui.tags.h3("Options"),
+                            ui.tags.hr(),
+                            ui.card(
+                                ui.input_checkbox("score_amel_batch", "Score Amelogenin", value = True),
+                                ui.input_numeric("mix_threshold_batch", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                                ui.input_numeric("tan_threshold_batch", "Tanabe Filter Threshold", value=80, width = '100%'),
+                                ui.input_numeric("mas_q_threshold_batch", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
+                                ui.input_numeric("mas_r_threshold_batch", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
+                            ),
+                            ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
+                            ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
+                            ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
+                            position = "left"
+                        ),
+                        ui.panel_main(
+                            ui.row(
+                                ui.column(3, ui.tags.h3("Results")),
+                                ui.column(6, ui.p('')),
+                            ),
+                            ui.column(12,
+                                {"id": "res_card_batch"},
+                                ui.output_data_frame("out_batch_df"),
+                                ui.p('')
+                            ),
+                        ),
+                    ),
+                ),
             ),
-        ui.tags.hr(),
-        ui.card(
-            ui.row(
-                ui.column(3, ui.tags.h3("Results")),
-                ui.column(1, ui.p('')),
-            ),
-            ui.column(12,
-                {"id": "res_card"},
-                # ui.output_data_frame("out_result"),
-                ui.output_ui("out_result"),
-            ),
-            full_screen = False, fill = False
         ),
-    ),
-    ui.nav_panel("Batch Database Query",
-        ui.card(
-            ui.layout_sidebar(
+        ui.nav_panel(
+            "Database File Managment",
+            ui.layout_columns(
+  
+            ui.value_box(
+                    "Current Database:",
+                      ui.div(
+                        {"style": "font-size: 20px;"},
+                        ui.output_text("current_db"),
+                    ),
+                    ui.output_text("sample_count"),
+                    showcase=stack,
+                    theme="bg-blue",
+                    class_="font-size-10px"
+            ),
+            ui.hr(),
+            ui.output_ui('database_file'),
+            ui.input_action_button("reset_db", "Reset Custom Database", class_="btn-danger"),
+            col_widths=(-3, 6, -3),
+            ),            
+        ),
+        ui.nav_panel("Within File Query",
+            ui.card(
+                ui.layout_sidebar(
                 ui.panel_sidebar(
-                    {"id": "batch_sidebar"},
+                    {"id": "novel_query_sidebar"},
                     ui.tags.h3("Options"),
                     ui.card(
-                        ui.input_checkbox("score_amel_batch", "Score Amelogenin", value = True),
-                        ui.input_numeric("mix_threshold_batch", "'Mixed' Sample Threshold", value=3, width = '100%'),
-                        ui.input_numeric("tan_threshold_batch", "Tanabe Filter Threshold", value=80, width = '100%'),
-                        ui.input_numeric("mas_q_threshold_batch", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
-                        ui.input_numeric("mas_r_threshold_batch", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
+                        ui.input_checkbox("score_amel_file", "Score Amelogenin", value = True),
+                        ui.input_numeric("mix_threshold_file", "'Mixed' Sample Threshold", value=3, width = '100%'),
+                        ui.input_numeric("tan_threshold_file", "Tanabe Filter Threshold", value=80, width = '100%'),
+                        ui.input_numeric("mas_q_threshold_file", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
+                        ui.input_numeric("mas_r_threshold_file", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
                     ),
-                    ui.input_file("file1", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
-                    ui.input_action_button("csv_query", "CSV Query", class_="btn-primary", width = '100%'),
-                    ui.download_button("example_file1", "Download Example Batch File", class_="btn-secondary", width = '100%'),
+                    ui.input_file("file2", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
+                    ui.input_action_button("csv_query2", "CSV Query", class_="btn-primary", width = '100%'),
+                    ui.download_button("example_file2", "Download Example Batch File", class_="btn-secondary", width = '100%'),
                     position = "left"
                 ),
                 ui.panel_main(
@@ -305,60 +392,76 @@ app_ui = ui.page_navbar(
                         ui.column(6, ui.p('')),
                     ),
                     ui.column(12,
-                        {"id": "res_card_batch"},
-                        ui.output_data_frame("out_batch_df"),
+                        {"id": "res_card_file"},
+                        ui.output_data_frame("out_file_df"),
                         ui.p('')
                     ),
                 ),
             ),
-        ),
-    ),
-    ui.nav_panel("File Query",
-        ui.card(
-            ui.layout_sidebar(
-            ui.panel_sidebar(
-                {"id": "novel_query_sidebar"},
-                ui.tags.h3("Options"),
-                ui.card(
-                    ui.input_checkbox("score_amel_file", "Score Amelogenin", value = True),
-                    ui.input_numeric("mix_threshold_file", "'Mixed' Sample Threshold", value=3, width = '100%'),
-                    ui.input_numeric("tan_threshold_file", "Tanabe Filter Threshold", value=80, width = '100%'),
-                    ui.input_numeric("mas_q_threshold_file", "Masters (vs. query) Filter Threshold", value=80, width = '100%'),
-                    ui.input_numeric("mas_r_threshold_file", "Masters (vs. reference) Filter Threshold", value=80, width = '100%')
-                ),
-                ui.input_file("file2", "CSV Input File:", accept=[".csv"], multiple=False, width = '100%'),
-                ui.input_action_button("csv_query2", "CSV Query", class_="btn-primary", width = '100%'),
-                ui.download_button("example_file2", "Download Example Batch File", class_="btn-secondary", width = '100%'),
-                position = "left"
             ),
+        ),
+        ui.nav_panel("About",
             ui.panel_main(
-                ui.row(
-                    ui.column(3, ui.tags.h3("Results")),
-                    ui.column(6, ui.p('')),
-                ),
-                ui.column(12,
-                    {"id": "res_card_file"},
-                    ui.output_data_frame("out_file_df"),
-                    ui.p('')
-                ),
-            ),
+                ui.tags.iframe(src = 'help.html',
+                            width = "100%",
+                            style="height: 85vh;",
+                            scrolling = 'yes',
+                            frameborder="0")
+            )
         ),
-        ),
-    ),
-    ui.nav_panel("About",
-        ui.panel_main(
-            ui.tags.iframe(src = 'help.html',
-                           width = "100%",
-                           style="height: 85vh;",
-                           scrolling = 'yes',
-                           frameborder="0")
-        )
-    ),
-    title="PDX STR Similarity",
+        title="PDX STR Similarity",
+    )
 )
 
 ########
 def server(input, output, session):
+
+    file_check = reactive.value(False)
+
+    @output
+    @render.text
+    def current_db():
+        return 'jax_database.csv'
+
+
+    @render.ui
+    @reactive.event(file_check)
+    def database_file():
+        return ui.input_file("database_upload", "Upload Custom Database", accept=[".csv"], multiple=False, width = '100%')
+
+    @reactive.effect
+    @reactive.event(input.reset_db)
+    def _():
+        global str_database
+        file_check.set(not file_check())
+        str_database = database_load([Path(__file__).parent / "www/jax_database.csv"])
+        @output
+        @render.text
+        def current_db():
+            return 'jax_database.csv'
+
+    @reactive.Effect
+    @reactive.event(input.database_upload)
+    def _():
+        global str_database
+        if input.database_upload():
+            file: list[FileInfo] | None = input.database_upload() 
+        else:
+            return
+        str_database = database_load([file[0]["datapath"]])
+        @output
+        @render.text
+        def current_db():
+            return file[0]["name"]
+        @reactive.Calc
+        @render.text
+        def sample_count():
+            return 'Number of Database Samples: ' + str(len(str_database))
+
+    @reactive.Calc
+    @render.text
+    def sample_count():
+        return 'Number of Database Samples: ' + str(len(str_database))
 
 ################
 # Single sample query section
@@ -403,7 +506,7 @@ def server(input, output, session):
         ui.update_text("marker_18", value="16,18")
         @output
         @render.text
-        def demo_text():
+        def loaded_example_text():
             x = ui.strong('Example: J000077608_P0')
             return x
     
@@ -437,7 +540,7 @@ def server(input, output, session):
         ui.update_numeric("mix_threshold_query", value='3')
         @output
         @render.text
-        def demo_text():
+        def loaded_example_text():
             x = ui.strong('')
             return x
 
@@ -502,10 +605,9 @@ def server(input, output, session):
         if not any(query.values()):
             @output
             @render.text
-            def demo_text():
+            def loaded_example_text():
                 return('')
             ui.remove_ui("#inserted-downloader")
-            ui.remove_ui("#inserted-switch")
             res_click = 0
             return None
         if (res_click == 0):
@@ -513,12 +615,7 @@ def server(input, output, session):
                 ui.div({"id": "inserted-downloader"}, ui.download_button("download", "Download CSV", width = '25%', class_="btn-primary")),
                 selector="#res_card",
                 where="afterEnd",
-            )
-            # ui.insert_ui(
-            #     ui.div({"id": "inserted-switch"}, ui.input_switch("filters", "Data Filters", False)),
-            #     selector="#res_card",
-            #     where="beforeBegin",
-            # )           
+            )          
             res_click = 1
 
         return single_query(query, str_database, input.score_amel_query(), input.mix_threshold_query(), input.query_filter(), input.query_filter_threshold())
@@ -558,8 +655,19 @@ def server(input, output, session):
     @render.data_frame
     def out_batch_df():
         output_df = batch_query_results()
-        if output_df is not None:
+        try:
             return render.DataTable(output_df)
+        except:
+            m = ui.modal(
+                ui.div({"style": "font-size: 18px"},
+                    ui.HTML("There was a fatal error in the query.<br><br>Ensure marker names match expectation, and that no special charecters (spaces, etc.) were used in sample names."),
+                ),                    
+                title='Batch Query Error',
+                easy_close=True,
+                footer=None,
+            )
+            ui.modal_show(m)
+            return render.DataTable(pd.DataFrame({'Failed Query. Fix Input File' : []}))
 
     ### File input loading
     @reactive.Calc
@@ -679,4 +787,3 @@ def server(input, output, session):
 
 
 app = App(app_ui, server, static_assets = www_dir)
-

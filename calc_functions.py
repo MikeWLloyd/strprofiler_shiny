@@ -100,8 +100,12 @@ def batch_query(query_df, str_database, use_amel, three_allele_threshold, tan_th
         for sa in str_database.keys():
             if sa != s:
                 r = str_database[sa]
-                scores = sp.score_query(query=q, reference=r, use_amel=use_amel)
-
+                
+                try:
+                    scores = sp.score_query(query=q, reference=r, use_amel=use_amel)
+                except:
+                    return False
+                
                 # Create dict of scores for each sample comparison.
                 samp_out = OrderedDict({"Sample": sa})
                 samp_out.update(scores)
@@ -130,9 +134,9 @@ def batch_query(query_df, str_database, use_amel, three_allele_threshold, tan_th
 
     summaries_out = summaries[['Sample', 'mixed', 'top_hit', 'next_best', 'tanabe_matches', 'masters_query_matches', 'masters_ref_matches']]
 
-    summaries_out.rename(columns={"mixed": "Mixed Sample", "top_hit": "Top Match", "next_best": "Next Best Match", "tanabe_matches": "Tanabe Matches", "masters_query_matches": "Master Query Matches", "masters_ref_matches": "Master Ref Matches"}, inplace = True)
+    summaries_ret = summaries_out.rename(columns={"mixed": "Mixed Sample", "top_hit": "Top Match", "next_best": "Next Best Match", "tanabe_matches": "Tanabe Matches", "masters_query_matches": "Master Query Matches", "masters_ref_matches": "Master Ref Matches"})
 
-    return summaries_out
+    return summaries_ret
 
 
 
@@ -196,6 +200,6 @@ def file_query(query_df, use_amel, three_allele_threshold, tan_threshold, mas_q_
 
     summaries_out = summaries[['Sample', 'mixed', 'top_hit', 'next_best', 'tanabe_matches', 'masters_query_matches', 'masters_ref_matches']]
 
-    summaries_out.rename(columns={"mixed": "Mixed Sample", "top_hit": "Top Match", "next_best": "Next Best Match", "tanabe_matches": "Tanabe Matches", "masters_query_matches": "Master Query Matches", "masters_ref_matches": "Master Ref Matches"}, inplace = True)
+    summaries_ret = summaries_out.rename(columns={"mixed": "Mixed Sample", "top_hit": "Top Match", "next_best": "Next Best Match", "tanabe_matches": "Tanabe Matches", "masters_query_matches": "Master Query Matches", "masters_ref_matches": "Master Ref Matches"})
 
-    return summaries_out
+    return summaries_ret
