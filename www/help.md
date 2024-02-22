@@ -1,5 +1,5 @@
 ---
-title: "PDX STR Similarity"
+title: "STR Similarity"
 subtitle: 'This site and tool are intended research purposes only'
 output: 
   html_document:
@@ -13,7 +13,7 @@ output:
 
 # Database Queries  
 For a provided sample entered manually in the `Database Query` or sample(s) uploaded from a batch file (Batch Database Query tab)
-`PDX STR Similarity` will generate a report that includes the similarity scores (described below) as computed against a database of known patient derived xenograft models.  
+`STR Similarity` will generate a report that includes the similarity scores (described below) as computed against a database of known STR profiles.  
 </p>
 The report will differ depending on if an individual sample or batch of samples is provided.   
 
@@ -23,7 +23,7 @@ Data underlying the database were provided by ..... `TO BE FILLED LATER AS DATAB
 ---
 
 ### Individual Sample Report
-For individual samples a report is generated with the following fields.
+For individual samples, a report is generated with the following fields.
 
 | Output Field | Description |
 | :--- |    :----   |
@@ -37,7 +37,7 @@ For individual samples a report is generated with the following fields.
 ---
 
 ### Batch Sample Report 
-For batched samples a report is summary report is generated. For individual sample comparison report, enter the individual sample in the database query tab.
+For batched samples, a report is summary report is generated. For individual sample comparison report, enter the individual sample in the database query tab.
 
 | Output Field | Description |
 | :---        |    :----   |
@@ -51,7 +51,7 @@ For batched samples a report is summary report is generated. For individual samp
 ---
 
 # Non-database Queries
-For batch samples entered in the File Query tab, `PDX STR Similarity` will generate a report that mirrors the batch query above, except that samples will be queried against each other rather than against the database. 
+For batch samples entered in the File Query tab, `STR Similarity` will generate a report that mirrors the batch query above, except that samples will be queried against each other rather than against the database. 
 
 ---
 
@@ -82,7 +82,7 @@ For batch samples entered in the File Query tab, `PDX STR Similarity` will gener
 ### All fields
 
 * Amelogenin is included in the score computation by default but can be excluded by de-selecting option.
-* Mixed' Sample Threshold
+* 'Mixed' Sample Threshold
 
 ### Batch and file specfic
 
