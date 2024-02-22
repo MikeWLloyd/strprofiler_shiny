@@ -15,9 +15,9 @@ import time
 
 from shiny_tables import enhanced_from_dataframe
 
-# To add new markers, also change/add:
+# To add new markers:
 # 1. add new marker to `markers` list below.
-# 2. add new value in example section to `vals` list for marker
+# 2. add new demo value in `demo_vals` list for marker.
 
 www_dir = Path(__file__).parent / "www"
 
@@ -47,6 +47,26 @@ markers = [
     "vWA",
 ]
 
+demo_vals = [
+    "X,Y",
+    "10",
+    "26",
+    "17,18",
+    "12",
+    "8,10",
+    "11,14",
+    "11",
+    "9,11",
+    "12",
+    "13,15",
+    "28,31.2",
+    "21,22",
+    "",
+    "",
+    "7,8",
+    "8,11",
+    "16,18",
+]
 
 def database_load(file):
     try:
@@ -392,30 +412,9 @@ def server(input, output, session):
     @reactive.Effect
     @reactive.event(input.demo_data)
     def _():
-        vals = [
-            "X,Y",
-            "10",
-            "26",
-            "17,18",
-            "12",
-            "8,10",
-            "11,14",
-            "11",
-            "9,11",
-            "12",
-            "13,15",
-            "28,31.2",
-            "21,22",
-            "",
-            "",
-            "7,8",
-            "8,11",
-            "16,18",
-        ]
-
-        # Update the fields with the demo data using the marker names and vals list
+        # Update the fields with the demo data using the marker list and demo_vals list
         for i, marker in enumerate(markers):
-            ui.update_text(marker, value=vals[i])
+            ui.update_text(marker, value=demo_vals[i])
 
         @output
         @render.text
