@@ -66,6 +66,7 @@ demo_vals = [
     "16,18",
 ]
 
+
 def database_load(file):
     try:
         str_database = sp.str_ingress(
@@ -110,7 +111,6 @@ def generate_marker_function(marker):
 
 for marker in markers:
     globals()[marker] = generate_marker_function(marker)
-
 
 cell_style_dict = {
     marker: (
@@ -177,23 +177,20 @@ app_ui = ui.page_fluid(
                             position="right",
                         ),
                         ui.panel_main(
-                            ui.column(
-                                12,
+                            ui.column(12,
                                 ui.row(
                                     ui.column(4, ui.tags.h3("Sample Input")),
                                 ),
                             ),
                             ui.card(
-                                ui.column(
-                                    12,
+                                ui.column(12,
                                     ui.row([marker_ui(marker) for marker in markers]),
                                 ),
                                 full_screen=False,
                                 fill=False,
                             ),
                             ui.row(
-                                ui.column(
-                                    4,
+                                ui.column(4,
                                     ui.input_action_button("demo_data", "Load Example Data", class_="btn-primary"),
                                 ),
                                 ui.column(4, ui.output_ui("loaded_example_text")),
