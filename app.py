@@ -4,8 +4,6 @@ from shiny.types import FileInfo, ImgData
 
 import pandas as pd
 from pathlib import Path
-from math import nan
-from collections import OrderedDict
 
 import strprofiler as sp
 from calc_functions import single_query, batch_query, file_query
@@ -93,7 +91,6 @@ def database_load(file):
         )
         ui.modal_show(m)
         str_database = database_load([Path(__file__).parent / "www/jax_database.csv"])
-        return str_database
     return str_database
 
 
