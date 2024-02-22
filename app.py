@@ -353,7 +353,7 @@ def server(input, output, session):
         def current_db():
             return "jax_database.csv"
 
-    @reactive.Effect
+    @reactive.effect
     @reactive.event(input.database_upload)
     def _():
         global str_database
@@ -368,12 +368,12 @@ def server(input, output, session):
         def current_db():
             return file[0]["name"]
 
-        @reactive.Calc
+        @reactive.calc
         @render.text
         def sample_count():
             return "Number of Database Samples: " + str(len(str_database))
 
-    @reactive.Calc
+    @reactive.calc
     @render.text
     def sample_count():
         return "Number of Database Samples: " + str(len(str_database))
@@ -406,7 +406,7 @@ def server(input, output, session):
 
     # Dealing with demo data load
     # Add some demo genotype information to the fields
-    @reactive.Effect
+    @reactive.effect
     @reactive.event(input.demo_data)
     def _():
         # Update the fields with the demo data using the marker list and demo_vals list
@@ -421,7 +421,7 @@ def server(input, output, session):
 
     # Reset all marker fields
     # Effect occurs on click of 'Reset Inputs' button
-    @reactive.Effect
+    @reactive.effect
     @reactive.event(input.reset)
     def reset_clicked():
         [ui.update_text(marker, value="") for marker in markers]
@@ -443,7 +443,7 @@ def server(input, output, session):
     # If query has data, results are expected and
     # the download button is turned on. If query is empty,
     # no results are expected and download button removed.
-    @reactive.Calc
+    @reactive.calc
     @reactive.event(input.search, input.reset)
     def output_results():
         global reset_count
@@ -543,7 +543,7 @@ def server(input, output, session):
             return render.DataTable(pd.DataFrame({"Failed Query. Fix Input File": []}))
 
     # File input loading
-    @reactive.Calc
+    @reactive.calc
     @reactive.event(input.csv_query)
     def batch_query_results():
         global res_click_file
@@ -609,7 +609,7 @@ def server(input, output, session):
             return render.DataTable(output_df)
 
     # File input loading
-    @reactive.Calc
+    @reactive.calc
     @reactive.event(input.csv_query2)
     def file_query_results():
         global res_click_batch
