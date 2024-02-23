@@ -66,7 +66,6 @@ demo_vals = [
     "16,18",
 ]
 
-
 def database_load(file):
     try:
         str_database = sp.str_ingress(
@@ -345,6 +344,10 @@ def server(input, output, session):
         @render.text
         def current_db():
             return "jax_database.csv"
+        @reactive.Calc
+        @render.text
+        def sample_count():
+            return 'Number of Database Samples: ' + str(len(str_database))
 
     @reactive.effect
     @reactive.event(input.database_upload)
