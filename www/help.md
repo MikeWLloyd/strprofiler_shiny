@@ -92,8 +92,9 @@ For batch samples entered in the File Query tab, `STR Similarity` will generate 
 
 ---
 
-# Author
-<a href="https://github.com/MikeWLloyd" target="_blank">Mike Lloyd</a>, The Jackson Laboratory
+# Authors
+<a href="https://github.com/MikeWLloyd" target="_blank">Mike Lloyd</a>, The Jackson Laboratory.  
+<a href="https://github.com/j-andrews7" target="_blank">Jared Andrews</a>, St. Jude Children's Research Hospital
 
 ---
 

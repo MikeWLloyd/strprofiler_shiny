@@ -347,7 +347,7 @@ def server(input, output, session):
         @reactive.Calc
         @render.text
         def sample_count():
-            return 'Number of Database Samples: ' + str(len(str_database))
+            return "Number of Database Samples: " + str(len(str_database))
 
     @reactive.effect
     @reactive.event(input.database_upload)
