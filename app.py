@@ -31,9 +31,6 @@ res_click = 0
 res_click_batch = 0
 res_click_file = 0
 
-
-# Unhandled error: Index has duplicate keys: Index(['L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'], dtype='object', name='Sample')
-
 def database_load(file):
     try:
         str_database = sp.str_ingress(
@@ -439,6 +436,11 @@ def server(input, output, session):
         @render.text
         def current_db():
             return 'jax_database.csv'
+        @reactive.Calc
+        @render.text
+        def sample_count():
+            return 'Number of Database Samples: ' + str(len(str_database))
+
 
     @reactive.Effect
     @reactive.event(input.database_upload)
