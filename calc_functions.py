@@ -1,6 +1,5 @@
 import strprofiler as sp
 import pandas as pd
-import random
 from math import nan
 from collections import OrderedDict
 import time
